@@ -29,24 +29,20 @@ const processSteps = [
 	["完成作品", "由花藝師親手製作，保留花材自然姿態與專屬美感。"]
 ];
 
-// 可替換：未來可把這些 placeholder 改成真實作品圖片與分類。
+// 可替換：未來可把這些作品圖改成真實作品檔名或 CMS 資料。
 const moments = [
-	["生日花束", "Birthday Bouquet", "linear-gradient(135deg, #9b6f67, #dcc6ae 45%, #683d42)"],
-	["婚禮捧花", "Wedding Bouquet", "linear-gradient(135deg, #ebe0d0, #b98489 58%, #46513f)"],
-	["開幕花禮", "Opening Gift", "linear-gradient(135deg, #394235, #b89a63 48%, #f1e4d1)"],
-	["品牌活動", "Brand Event", "linear-gradient(135deg, #251f1e, #7b1f2c 52%, #c9aa71)"],
-	["空間佈置", "Spatial Floral", "linear-gradient(135deg, #68705a, #e1d1bd 52%, #a65c62)"],
-	["節慶送禮", "Seasonal Gift", "linear-gradient(135deg, #f4eadc, #b56b70 58%, #2f2b27)"]
+	{ src: "/img/flower/flower1.webp", alt: "朝花曦時花藝作品 01" },
+	{ src: "/img/flower/flower2.webp", alt: "朝花曦時花藝作品 02" },
+	{ src: "/img/flower/flower3.webp", alt: "朝花曦時花藝作品 03" },
+	{ src: "/img/flower/flower4.webp", alt: "朝花曦時花藝作品 04" },
+	{ src: "/img/flower/flower5.webp", alt: "朝花曦時花藝作品 05" },
+	{ src: "/img/flower/flower6.webp", alt: "朝花曦時花藝作品 06" },
+	{ src: "/img/flower/flower7.webp", alt: "朝花曦時花藝作品 07" },
+	{ src: "/img/flower/flower8.webp", alt: "朝花曦時花藝作品 08" }
 ];
 
 // 可替換：花藝師經歷、年資與品牌實績可日後更新。
-const experience = [
-	"花藝設計經歷｜X 年",
-	"專注於客製花束、婚禮花藝與活動佈置",
-	"參與品牌活動、節慶花禮與私人訂製花藝設計",
-	"擅長以自然線條、柔和色彩與季節花材呈現作品情緒",
-	"預留更多經歷條目，方便日後替換"
-];
+const experience = ["AFA 美國花藝設計學院 現代花藝設計教授"];
 ---
 
 <!doctype html>
@@ -55,19 +51,27 @@ const experience = [
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta name="description" content="朝花曦時藝術工作室，提供客製花束、送禮花藝、婚禮花藝、活動佈置與空間花藝設計。" />
-		<title>朝花曦時藝術工作室｜Bespoke Floral Design</title>
-		<link rel="preconnect" href="https://fonts.googleapis.com" />
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-		<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600&family=Noto+Serif+TC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+		<title>朝花曦時藝術工作室</title>
+		<link rel="preconnect" href="https://font.emtech.cc" />
+		<link rel="stylesheet" href="https://font.emtech.cc/css/ChironSungHK" />
+		<link rel="stylesheet" href="https://font.emtech.cc/css/ZhuqueFangsong" />
 	</head>
-	<body>
+	<body data-loading>
+		<div class="site-loader" data-site-loader aria-live="polite" aria-label="網站載入中">
+			<div class="loader-mark">
+				<span>朝花曦時</span>
+				<small>藝術工作室</small>
+			</div>
+			<div class="loader-line" aria-hidden="true"></div>
+		</div>
+
 		<Header />
 		<RoseScene />
 
 		<main id="top">
 			<section class="hero" aria-labelledby="hero-title">
 				<div class="hero-grid">
-					<div class="hero-content stagger-reveal">
+					<div class="hero-content">
 						<p class="hero-kicker">Bespoke Floral Design</p>
 						<h1 class="hero-title title-reveal" id="hero-title">
 							<span class="title-line">朝花</span>
@@ -96,16 +100,15 @@ const experience = [
 			</div>
 
 			<section class="page-section about" id="about" aria-labelledby="about-title">
-				<div class="section-inner split-layout">
-					<div class="reveal">
-						<p class="eyebrow">About</p>
-						<h2 class="section-title" id="about-title">季節、線條與心意的比例</h2>
-						<p class="lead">以季節花材、自然線條與色彩美學，為送禮、婚禮、活動與生活儀式設計專屬花藝作品。</p>
-					</div>
-					<div class="about-aside reveal">
-						<span class="aside-number">01</span>
-						<p class="aside-text">我們相信花藝不是裝飾，而是一種替人說話的方式。色彩、姿態與留白，都為當下的情感找到剛好的位置。</p>
-					</div>
+				<div class="section-inner about-statement">
+					<p class="eyebrow reveal">About</p>
+					<p class="about-poem reveal" id="about-title">
+						每朵花都不該被辜負<br />
+						每個故事都會被尊重和珍視<br />
+						擁有故事輪廓的花束<br />
+						等待收花人揭曉這份<br />
+						驚喜和幸福。
+					</p>
 				</div>
 			</section>
 
@@ -113,38 +116,24 @@ const experience = [
 				<div class="section-inner artist-panel">
 					<div class="reveal">
 						<p class="eyebrow">Artist</p>
-						<h2 class="section-title" id="artist-title">花藝師 / Artist</h2>
-						<blockquote class="artist-quote">
-							她相信，每朵花都不該被辜負。<br />
-							每個故事，都值得被尊重和珍視。<br />
-							因此，每一件作品都不只是花材的排列，而是情感、時間與記憶的輪廓。
-						</blockquote>
+						<h2 class="section-title" id="artist-title">田曦之</h2>
+						<p class="artist-role">花藝師 / Artist</p>
+						<ol class="experience-list artist-experience stagger-reveal">
+							{
+								experience.map((item, index) => (
+									<li>
+										<span>{String(index + 1).padStart(2, "0")}</span>
+										<p>{item}</p>
+									</li>
+								))
+							}
+						</ol>
 					</div>
 
-					<ol class="experience-list stagger-reveal">
-						{
-							experience.map((item, index) => (
-								<li>
-									<span>{String(index + 1).padStart(2, "0")}</span>
-									<p>{item}</p>
-								</li>
-							))
-						}
-					</ol>
-				</div>
-			</section>
-
-			<section class="page-section quote-section" aria-label="詩意品牌文案">
-				<div class="section-inner">
-					<p class="eyebrow reveal">Poetic Statement</p>
-					<p class="poem reveal">
-						每朵花都不該被辜負<br />
-						每個故事都會被尊重和珍視<br />
-						擁有故事輪廓的花束<br />
-						等待收花人揭曉這份<br />
-						驚喜和幸福。
-					</p>
-					<p class="poem-note reveal">A bouquet with the silhouette of a story, waiting to be received.</p>
+					<div class="artist-media reveal">
+						<!-- 可替換：花藝師照片可改為正式形象照。 -->
+						<img src="/img/flower/artist.webp" alt="花藝師田曦之" loading="lazy" />
+					</div>
 				</div>
 			</section>
 
@@ -168,6 +157,27 @@ const experience = [
 										<p>{service.text}</p>
 									</div>
 								</article>
+							))
+						}
+					</div>
+				</div>
+			</section>
+
+			<section class="page-section moments" id="moments" aria-labelledby="moments-title">
+				<div class="section-inner">
+					<div class="moments-header reveal">
+						<div>
+							<p class="eyebrow">Gallery</p>
+							<h2 class="section-title" id="moments-title">作品</h2>
+						</div>
+					</div>
+
+					<div class="moments-grid stagger-reveal">
+						{
+							moments.map(item => (
+								<figure class="moment parallax-panel">
+									<img src={item.src} alt={item.alt} loading="lazy" />
+								</figure>
 							))
 						}
 					</div>
@@ -198,29 +208,6 @@ const experience = [
 				</div>
 			</section>
 
-			<section class="page-section moments" id="moments" aria-labelledby="moments-title">
-				<div class="section-inner">
-					<div class="moments-header reveal">
-						<div>
-							<p class="eyebrow">Gallery / Moments</p>
-							<h2 class="section-title" id="moments-title">作品情境</h2>
-						</div>
-						<p class="section-deck">目前使用可替換 placeholder，未來可直接改為真實作品圖片。</p>
-					</div>
-
-					<div class="moments-grid stagger-reveal">
-						{
-							moments.map(([label, note, bg]) => (
-								<article class="moment parallax-panel" style={`--moment-bg: ${bg};`}>
-									<span class="moment-label">{label}</span>
-									<span class="moment-note">{note}</span>
-								</article>
-							))
-						}
-					</div>
-				</div>
-			</section>
-
 			<section class="page-section contact" id="contact" aria-labelledby="contact-title">
 				<div class="section-inner">
 					<div class="reveal">
@@ -231,7 +218,7 @@ const experience = [
 					<div class="contact-card reveal">
 						<p>歡迎透過 Instagram 私訊洽詢客製花藝、活動佈置與婚禮花藝需求。請提供日期、用途、預算、喜歡的色系與參考風格，我們會協助你規劃最合適的花藝作品。</p>
 						<!-- 可替換：正式上線前請改為實際 Instagram 帳號。 -->
-						<a class="button-primary" href="https://www.instagram.com/your_ig_account" target="_blank" rel="noreferrer">前往 Instagram 洽詢</a>
+						<a class="button-primary" href="https://www.instagram.com/tiffany.tian.7/" target="_blank" rel="noreferrer">前往 Instagram 洽詢</a>
 					</div>
 				</div>
 

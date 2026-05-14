@@ -15,6 +15,21 @@
 	const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 	const isReduced = reducedMotion.matches;
 	const header = document.querySelector("[data-site-header]");
+	let loadingFinished = false;
+
+	const finishLoading = () => {
+		if (loadingFinished) return;
+		loadingFinished = true;
+		document.body.classList.add("is-loaded");
+		document.body.removeAttribute("data-loading");
+		document.dispatchEvent(new CustomEvent("flowering:loaded"));
+		window.setTimeout(() => {
+			document.querySelector("[data-site-loader]")?.remove();
+		}, 900);
+	};
+
+	const loadingFallbackTimer = window.setTimeout(finishLoading, 4800);
+	window.addEventListener("load", () => window.setTimeout(finishLoading, 2200), { once: true });
 
 	const updateHeader = () => {
 		header?.classList.toggle("is-scrolled", window.scrollY > 24);
@@ -53,6 +68,8 @@
 			});
 		} catch {
 			stage?.classList.add("is-fallback");
+			window.clearTimeout(loadingFallbackTimer);
+			finishLoading();
 		}
 
 		if (renderer) {
@@ -190,6 +207,8 @@
 
 				roseGroup.add(roseModel);
 				fallback?.classList.add("is-hidden");
+				window.clearTimeout(loadingFallbackTimer);
+				window.setTimeout(finishLoading, 420);
 			};
 
 			const loadRose = async () => {
@@ -203,9 +222,13 @@
 					const buffer = patchLegacySpecGlossGlb(await response.arrayBuffer());
 					loader.parse(buffer, "/", mountRoseModel, () => {
 						stage?.classList.add("is-fallback");
+						window.clearTimeout(loadingFallbackTimer);
+						finishLoading();
 					});
 				} catch {
 					stage?.classList.add("is-fallback");
+					window.clearTimeout(loadingFallbackTimer);
+					finishLoading();
 				}
 			};
 
@@ -247,11 +270,13 @@
 
 				timeline
 					.to(roseState, {
-						x: mobile ? 0.56 : 1.58,
-						y: mobile ? -0.54 : -0.38,
-						scale: mobile ? 0.28 : 0.48,
-						ry: 0.45,
-						opacity: 0.62,
+						x: mobile ? 0.52 : 1.12,
+						y: mobile ? -0.42 : -0.88,
+						scale: mobile ? 0.78 : 1.82,
+						rx: 0.46,
+						ry: 1.28,
+						rz: -0.12,
+						opacity: 1,
 						duration: 1.05,
 						ease: "none"
 					})
@@ -301,7 +326,7 @@
 					);
 				});
 
-				gsap.utils.toArray(".stagger-reveal").forEach(group => {
+				gsap.utils.toArray(".stagger-reveal:not(.hero-content)").forEach(group => {
 					const children = group.querySelectorAll(":scope > *");
 					gsap.fromTo(
 						children,
