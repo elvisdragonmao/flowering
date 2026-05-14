@@ -1,0 +1,145 @@
+---
+const moments = [
+	{ src: "/img/flower/flower1.webp", alt: "朝花曦時花藝作品 01" },
+	{ src: "/img/flower/flower2.webp", alt: "朝花曦時花藝作品 02" },
+	{ src: "/img/flower/flower3.webp", alt: "朝花曦時花藝作品 03" },
+	{ src: "/img/flower/flower4.webp", alt: "朝花曦時花藝作品 04" },
+	{ src: "/img/flower/flower5.webp", alt: "朝花曦時花藝作品 05" },
+	{ src: "/img/flower/flower6.webp", alt: "朝花曦時花藝作品 06" },
+	{ src: "/img/flower/flower7.webp", alt: "朝花曦時花藝作品 07" },
+	{ src: "/img/flower/flower8.webp", alt: "朝花曦時花藝作品 08" }
+];
+
+const rows = [moments.slice(0, 3), moments.slice(3, 5), moments.slice(5, 8)];
+---
+
+<section class="page-section moments" id="moments" aria-labelledby="moments-title">
+	<div class="section-inner">
+		<div class="moments-header reveal">
+			<div>
+				<p class="eyebrow">Gallery</p>
+				<h2 class="section-title" id="moments-title">作品</h2>
+			</div>
+		</div>
+
+		<div class="moments-grid" data-gallery-reveal>
+			{
+				rows.map((row, rowIndex) => (
+					<div class={`moment-row row-${rowIndex + 1}`}>
+						{row.map(item => (
+							<figure class="moment">
+								<img src={item.src} alt={item.alt} loading="lazy" />
+							</figure>
+						))}
+					</div>
+				))
+			}
+		</div>
+	</div>
+</section>
+
+<style>
+	.moments-header {
+		display: flex;
+		align-items: end;
+		justify-content: space-between;
+		gap: 2rem;
+		margin-bottom: clamp(2rem, 5vw, 4rem);
+	}
+
+	.moments-grid {
+		--gallery-gap: clamp(1.45rem, 3vw, 3.15rem);
+		display: flex;
+		flex-direction: column;
+		gap: var(--gallery-gap);
+	}
+
+	.moment-row {
+		display: flex;
+		gap: var(--gallery-gap);
+		align-items: stretch;
+	}
+
+	.row-1 .moment:nth-child(1),
+	.row-3 .moment:nth-child(3) {
+		flex: 1.2;
+	}
+
+	.row-1 .moment:nth-child(2),
+	.row-2 .moment:nth-child(1),
+	.row-3 .moment:nth-child(1) {
+		flex: 0.86;
+	}
+
+	.row-1 .moment:nth-child(3),
+	.row-2 .moment:nth-child(2),
+	.row-3 .moment:nth-child(2) {
+		flex: 1;
+	}
+
+	.moment {
+		position: relative;
+		min-width: 0;
+		height: clamp(17rem, 29vw, 30rem);
+		margin: 0;
+		overflow: hidden;
+		background: linear-gradient(135deg, rgba(155, 111, 103, 0.3), rgba(223, 208, 186, 0.75)), var(--warm-beige);
+		box-shadow: var(--shadow);
+		will-change: transform, opacity, clip-path;
+	}
+
+	.row-2 .moment {
+		height: clamp(19rem, 36vw, 36rem);
+	}
+
+	.moment::after {
+		position: absolute;
+		inset: 0;
+		content: "";
+		background: linear-gradient(180deg, transparent 58%, rgba(36, 33, 31, 0.18));
+		opacity: 0;
+		transition: opacity 420ms ease;
+	}
+
+	.moment:hover::after {
+		opacity: 1;
+	}
+
+	.moment img {
+		width: 100%;
+		height: 100%;
+		display: block;
+		object-fit: cover;
+		transform: scale(1.03);
+		transition:
+			transform 900ms ease,
+			filter 900ms ease;
+	}
+
+	.moment:hover img {
+		filter: saturate(1.02) contrast(1.02);
+		transform: scale(1.08);
+	}
+
+	@media (max-width: 760px) {
+		.moments-grid {
+			--gallery-gap: 1.5rem;
+		}
+
+		.moments-header {
+			flex-direction: column;
+			align-items: start;
+		}
+
+		.moment-row {
+			flex-direction: column;
+		}
+
+		.moment,
+		.row-2 .moment {
+			height: auto;
+			aspect-ratio: 4 / 5;
+			flex: none;
+		}
+	}
+</style>

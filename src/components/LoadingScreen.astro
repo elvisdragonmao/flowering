@@ -1,0 +1,113 @@
+<div class="site-loader" data-site-loader aria-live="polite" aria-label="網站載入中">
+	<div class="loader-mark">
+		<span>朝花曦時</span>
+		<small>藝術工作室</small>
+	</div>
+	<div class="loader-line" aria-hidden="true"></div>
+</div>
+
+<style>
+	.site-loader {
+		position: fixed;
+		inset: 0;
+		z-index: 100;
+		display: grid;
+		place-items: center;
+		background: radial-gradient(circle at 58% 44%, rgba(123, 31, 44, 0.12), transparent 24rem), linear-gradient(135deg, #fbf7ee, #efe2cf);
+		color: var(--charcoal);
+		transition:
+			opacity 800ms ease,
+			visibility 800ms ease;
+	}
+
+	.site-loader::before,
+	.site-loader::after {
+		position: absolute;
+		width: 0.45rem;
+		height: 0.45rem;
+		content: "";
+		border-radius: 50%;
+		background: var(--deep-rose);
+		box-shadow:
+			1.2rem 0 0 rgba(123, 31, 44, 0.32),
+			2.4rem 0 0 rgba(184, 154, 99, 0.45);
+		animation: loader-dots 1.6s ease-in-out infinite;
+	}
+
+	.site-loader::before {
+		top: 32%;
+		left: 18%;
+	}
+
+	.site-loader::after {
+		right: 19%;
+		bottom: 28%;
+		animation-delay: 0.35s;
+	}
+
+	:global(body.is-loaded) .site-loader {
+		visibility: hidden;
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	.loader-mark {
+		display: grid;
+		gap: 0.35rem;
+		text-align: center;
+	}
+
+	.loader-mark span {
+		font-family: var(--font-display);
+		font-size: clamp(2.8rem, 8vw, 7rem);
+		line-height: 0.9;
+	}
+
+	.loader-mark small {
+		color: var(--muted-olive);
+		font-size: 0.82rem;
+	}
+
+	.loader-line {
+		position: absolute;
+		left: 50%;
+		bottom: 18vh;
+		width: min(14rem, 42vw);
+		height: 1px;
+		overflow: hidden;
+		background: rgba(36, 33, 31, 0.14);
+		transform: translateX(-50%);
+	}
+
+	.loader-line::after {
+		display: block;
+		width: 48%;
+		height: 100%;
+		content: "";
+		background: var(--deep-rose);
+		animation: loader-line 1.45s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+	}
+
+	@keyframes loader-dots {
+		0%,
+		100% {
+			transform: translateY(0);
+			opacity: 0.36;
+		}
+
+		50% {
+			transform: translateY(-0.75rem);
+			opacity: 0.92;
+		}
+	}
+
+	@keyframes loader-line {
+		0% {
+			transform: translateX(-105%);
+		}
+
+		100% {
+			transform: translateX(225%);
+		}
+	}
+</style>

@@ -170,11 +170,12 @@
 				return output;
 			};
 
+			const mobileCover = window.matchMedia("(max-width: 720px)").matches;
 			const roseState = {
-				x: window.innerWidth < 760 ? 0.62 : 1.35,
-				y: window.innerWidth < 760 ? 0.78 : -0.04,
+				x: mobileCover ? 0.08 : 1.35,
+				y: mobileCover ? -1.02 : -0.04,
 				z: 0,
-				scale: window.innerWidth < 760 ? 0.3 : 0.9,
+				scale: mobileCover ? 0.76 : 0.9,
 				rx: -0.18,
 				ry: -0.48,
 				rz: -0.05,
@@ -258,7 +259,7 @@
 			};
 
 			if (!isReduced) {
-				const mobile = window.matchMedia("(max-width: 759px)").matches;
+				const mobile = window.matchMedia("(max-width: 720px)").matches;
 				const timeline = gsap.timeline({
 					scrollTrigger: {
 						trigger: document.documentElement,
@@ -345,6 +346,138 @@
 					);
 				});
 
+				const heroIntro = gsap.fromTo(
+					[".hero-kicker", ".title-line", ".hero-copy", ".hero-subcopy", ".hero-actions"],
+					{
+						autoAlpha: 0,
+						y: 52,
+						clipPath: "inset(0% 0% 100% 0%)"
+					},
+					{
+						autoAlpha: 1,
+						y: 0,
+						clipPath: "inset(0% 0% 0% 0%)",
+						duration: 1.18,
+						ease: "power4.out",
+						stagger: 0.13,
+						delay: 0.12,
+						paused: true
+					}
+				);
+				const playHeroIntro = () => heroIntro.play();
+				if (document.body.classList.contains("is-loaded")) {
+					playHeroIntro();
+				} else {
+					document.addEventListener("flowering:loaded", playHeroIntro, { once: true });
+				}
+
+				gsap.utils.toArray(".section-title, .contact-title, .about-poem").forEach(element => {
+					gsap.fromTo(
+						element,
+						{
+							autoAlpha: 0,
+							y: 64,
+							clipPath: "inset(0% 0% 100% 0%)"
+						},
+						{
+							autoAlpha: 1,
+							y: 0,
+							clipPath: "inset(0% 0% 0% 0%)",
+							duration: 1.25,
+							ease: "power4.out",
+							scrollTrigger: {
+								trigger: element,
+								start: "top 84%"
+							}
+						}
+					);
+				});
+
+				gsap.utils
+					.toArray(".section-deck, .artist-role, .artist-experience, .service-card h3, .service-card p, .process-step h3, .process-step p, .contact-card p")
+					.forEach(element => {
+						gsap.fromTo(
+							element,
+							{
+								autoAlpha: 0,
+								y: 28,
+								clipPath: "inset(0% 0% 26% 0%)"
+							},
+							{
+								autoAlpha: 1,
+								y: 0,
+								clipPath: "inset(0% 0% 0% 0%)",
+								duration: 1,
+								ease: "power3.out",
+								scrollTrigger: {
+									trigger: element,
+									start: "top 88%"
+								}
+							}
+						);
+					});
+
+				gsap.utils.toArray(".eyebrow").forEach(element => {
+					gsap.fromTo(
+						element,
+						{ autoAlpha: 0, x: -18 },
+						{
+							autoAlpha: 1,
+							x: 0,
+							duration: 0.9,
+							ease: "power3.out",
+							scrollTrigger: {
+								trigger: element,
+								start: "top 90%"
+							}
+						}
+					);
+				});
+
+				gsap.utils.toArray("[data-gallery-reveal]").forEach(group => {
+					const items = group.querySelectorAll(".moment");
+					gsap.fromTo(
+						items,
+						{
+							autoAlpha: 0,
+							y: 92,
+							scale: 0.965,
+							clipPath: "inset(16% 0% 0% 0%)"
+						},
+						{
+							autoAlpha: 1,
+							y: 0,
+							scale: 1,
+							clipPath: "inset(0% 0% 0% 0%)",
+							duration: 1.45,
+							ease: "power3.out",
+							stagger: {
+								each: 0.11,
+								from: "start"
+							},
+							scrollTrigger: {
+								trigger: group,
+								start: "top 78%"
+							}
+						}
+					);
+
+					gsap.fromTo(
+						group.querySelectorAll(".moment img"),
+						{ scale: 1.18 },
+						{
+							scale: 1.03,
+							duration: 1.65,
+							ease: "power3.out",
+							stagger: 0.11,
+							scrollTrigger: {
+								trigger: group,
+								start: "top 78%"
+							}
+						}
+					);
+				});
+
 				gsap.utils.toArray(".parallax-panel").forEach(panel => {
 					gsap.fromTo(
 						panel,
@@ -374,3 +507,53 @@
 		}
 	}
 </script>
+
+<style>
+	.rose-stage {
+		position: fixed;
+		inset: 0;
+		z-index: 1;
+		pointer-events: none;
+		opacity: 1;
+		transition: opacity 800ms ease;
+	}
+
+	.rose-canvas {
+		width: 100%;
+		height: 100%;
+		display: block;
+	}
+
+	.rose-fallback {
+		position: absolute;
+		top: 16vh;
+		right: 8vw;
+		width: clamp(10rem, 24vw, 27rem);
+		aspect-ratio: 1;
+		border-radius: 50%;
+		background: radial-gradient(circle at 45% 38%, rgba(255, 236, 225, 0.9) 0 8%, transparent 9%), conic-gradient(from 20deg, #651621, #9c2f3d, #d4a08b, #7b1f2c, #461018, #651621);
+		box-shadow: 0 30px 90px rgba(123, 31, 44, 0.25);
+		filter: saturate(0.9);
+		opacity: 0.72;
+		transform: translate3d(var(--rose-fallback-x, 0), var(--rose-fallback-y, 0), 0) scale(var(--rose-fallback-scale, 1));
+	}
+
+	.rose-fallback::after {
+		position: absolute;
+		inset: 18%;
+		content: "";
+		border: 1px solid rgba(248, 242, 231, 0.42);
+		border-radius: 50%;
+		transform: rotate(18deg);
+	}
+
+	.rose-fallback.is-hidden {
+		display: none;
+	}
+
+	@media (max-width: 720px) {
+		.rose-stage {
+			opacity: 0.92;
+		}
+	}
+</style>

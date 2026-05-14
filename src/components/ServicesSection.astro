@@ -1,0 +1,124 @@
+---
+const services = [
+	{
+		title: "客製花束",
+		text: "依照送禮對象、場合與色系，設計專屬於當下心意的花束。"
+	},
+	{
+		title: "送禮花藝",
+		text: "花盒、花籃、節慶花禮與祝賀，讓祝福以更細膩的方式抵達。"
+	},
+	{
+		title: "婚禮花藝",
+		text: "從新娘捧花、胸花到婚禮場地佈置，以花藝勾勒儀式感與記憶。"
+	},
+	{
+		title: "活動佈置",
+		text: "為品牌活動、派對、展覽、攝影場景與空間陳列打造花藝視覺。"
+	}
+];
+---
+
+<section class="page-section services" id="services" aria-labelledby="services-title">
+	<div class="section-inner">
+		<div class="services-header reveal">
+			<div>
+				<p class="eyebrow">Services</p>
+				<h2 class="section-title" id="services-title">服務項目</h2>
+			</div>
+			<p class="section-deck">從一束花到一場儀式，依照用途、空間與情緒設計專屬花藝。</p>
+		</div>
+
+		<div class="services-grid stagger-reveal">
+			{
+				services.map((service, index) => (
+					<article class="service-card">
+						<span class="number">{String(index + 1).padStart(2, "0")}</span>
+						<div>
+							<h3>{service.title}</h3>
+							<p>{service.text}</p>
+						</div>
+					</article>
+				))
+			}
+		</div>
+	</div>
+</section>
+
+<style>
+	.services-header {
+		display: flex;
+		align-items: end;
+		justify-content: space-between;
+		gap: 2rem;
+		margin-bottom: clamp(2rem, 5vw, 4rem);
+	}
+
+	.services-grid {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		border-top: 1px solid var(--line);
+		border-left: 1px solid var(--line);
+	}
+
+	.service-card {
+		min-height: 24rem;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		gap: 2rem;
+		padding: clamp(1.2rem, 2.4vw, 2rem);
+		border-right: 1px solid var(--line);
+		border-bottom: 1px solid var(--line);
+		background: rgba(248, 242, 231, 0.38);
+		transition:
+			background-color 360ms ease,
+			transform 360ms ease;
+	}
+
+	.service-card:hover {
+		background: rgba(255, 255, 255, 0.38);
+		transform: translateY(-4px);
+	}
+
+	.service-card .number {
+		color: var(--gold);
+		font-family: var(--font-display);
+		font-size: 2.5rem;
+		line-height: 1;
+	}
+
+	.service-card h3 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: clamp(1.8rem, 3vw, 2.8rem);
+		font-weight: 500;
+		line-height: 1;
+	}
+
+	.service-card p {
+		margin: 1rem 0 0;
+		color: rgba(36, 33, 31, 0.62);
+	}
+
+	@media (max-width: 980px) {
+		.services-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@media (max-width: 720px) {
+		.services-header {
+			flex-direction: column;
+			align-items: start;
+		}
+
+		.services-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.service-card {
+			min-height: auto;
+		}
+	}
+</style>

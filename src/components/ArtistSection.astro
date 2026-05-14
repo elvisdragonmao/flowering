@@ -1,0 +1,104 @@
+---
+const experience = "AFA 美國花藝設計學院 現代花藝設計教授";
+---
+
+<section class="page-section artist" id="artist" aria-labelledby="artist-title">
+	<div class="section-inner artist-panel">
+		<div class="artist-copy reveal">
+			<p class="eyebrow">Artist</p>
+			<h2 class="section-title" id="artist-title">田曦之</h2>
+			<p class="artist-role">花藝師 / Artist</p>
+			<p class="artist-experience">{experience}</p>
+		</div>
+
+		<div class="artist-media reveal">
+			<!-- 可替換：花藝師照片可改為正式形象照。 -->
+			<img src="/img/flower/artist.webp" alt="花藝師田曦之" loading="lazy" />
+		</div>
+	</div>
+</section>
+
+<style>
+	.artist {
+		background: linear-gradient(180deg, rgba(223, 208, 186, 0.3), rgba(248, 242, 231, 0));
+	}
+
+	.artist-panel {
+		min-height: clamp(38rem, 70svh, 54rem);
+		display: grid;
+		grid-template-columns: minmax(0, 0.78fr) minmax(22rem, 0.72fr);
+		gap: clamp(2.5rem, 7vw, 7rem);
+		align-items: center;
+	}
+
+	.artist-copy {
+		align-self: center;
+	}
+
+	.artist-role {
+		margin: 1rem 0 0;
+		color: var(--muted-olive);
+		font-family: var(--font-deco);
+		font-size: clamp(1.25rem, 2.4vw, 2.35rem);
+		line-height: 1;
+	}
+
+	.artist-experience {
+		max-width: 32rem;
+		margin: clamp(2rem, 4vw, 3rem) 0 0;
+		padding-top: 1.3rem;
+		border-top: 1px solid var(--line);
+		color: rgba(36, 33, 31, 0.68);
+		font-size: clamp(1rem, 1.45vw, 1.24rem);
+		line-height: 1.8;
+	}
+
+	.artist-experience::before {
+		display: block;
+		margin-bottom: 0.35rem;
+		color: var(--gold);
+		content: "Experience";
+		font-family: var(--font-deco);
+		font-size: 0.78rem;
+		text-transform: uppercase;
+	}
+
+	.artist-media {
+		position: relative;
+		width: min(100%, 35rem);
+		justify-self: end;
+		aspect-ratio: 4 / 5;
+		overflow: hidden;
+		background: rgba(36, 33, 31, 0.08);
+		box-shadow: var(--shadow);
+	}
+
+	.artist-media::before {
+		position: absolute;
+		inset: 0.8rem;
+		z-index: 1;
+		content: "";
+		border: 1px solid rgba(248, 242, 231, 0.5);
+		pointer-events: none;
+	}
+
+	.artist-media img {
+		width: 100%;
+		height: 100%;
+		display: block;
+		object-fit: cover;
+		filter: saturate(0.92) contrast(0.98);
+	}
+
+	@media (max-width: 980px) {
+		.artist-panel {
+			min-height: auto;
+			grid-template-columns: 1fr;
+		}
+
+		.artist-media {
+			justify-self: start;
+			width: min(100%, 30rem);
+		}
+	}
+</style>
