@@ -1,0 +1,351 @@
+<div class="rose-stage" aria-hidden="true">
+	<canvas class="rose-canvas" data-rose-canvas></canvas>
+	<div class="rose-fallback" data-rose-fallback></div>
+</div>
+
+<script>
+	import gsap from "gsap";
+	import { ScrollTrigger } from "gsap/ScrollTrigger";
+	import Lenis from "lenis";
+	import * as THREE from "three";
+	import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+
+	gsap.registerPlugin(ScrollTrigger);
+
+	const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+	const isReduced = reducedMotion.matches;
+	const header = document.querySelector("[data-site-header]");
+
+	const updateHeader = () => {
+		header?.classList.toggle("is-scrolled", window.scrollY > 24);
+	};
+
+	updateHeader();
+	window.addEventListener("scroll", updateHeader, { passive: true });
+
+	if (!isReduced) {
+		const lenis = new Lenis({
+			duration: 1.28,
+			easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+			smoothWheel: true,
+			syncTouch: false,
+			wheelMultiplier: 0.82
+		});
+
+		lenis.on("scroll", ScrollTrigger.update);
+		gsap.ticker.add(time => lenis.raf(time * 1000));
+		gsap.ticker.lagSmoothing(0);
+	}
+
+	const canvas = document.querySelector("[data-rose-canvas]");
+	const fallback = document.querySelector("[data-rose-fallback]");
+	const stage = document.querySelector(".rose-stage");
+
+	if (canvas instanceof HTMLCanvasElement) {
+		let renderer;
+
+		try {
+			renderer = new THREE.WebGLRenderer({
+				canvas,
+				alpha: true,
+				antialias: true,
+				powerPreference: "high-performance"
+			});
+		} catch {
+			stage?.classList.add("is-fallback");
+		}
+
+		if (renderer) {
+			const scene = new THREE.Scene();
+			const camera = new THREE.PerspectiveCamera(34, window.innerWidth / window.innerHeight, 0.1, 100);
+			const roseGroup = new THREE.Group();
+			const clock = new THREE.Clock();
+			let roseModel = null;
+
+			camera.position.set(0, 0, 7.2);
+			scene.add(roseGroup);
+
+			const keyLight = new THREE.DirectionalLight(0xffefe1, 3.2);
+			keyLight.position.set(2.4, 3.8, 4.8);
+			scene.add(keyLight);
+
+			const rimLight = new THREE.DirectionalLight(0xc48c73, 1.5);
+			rimLight.position.set(-3.2, 1.5, 2.2);
+			scene.add(rimLight);
+
+			const fillLight = new THREE.HemisphereLight(0xfaf0df, 0x4f4d35, 1.8);
+			scene.add(fillLight);
+
+			const patchLegacySpecGlossGlb = buffer => {
+				const view = new DataView(buffer);
+				const jsonType = 0x4e4f534a;
+				const encoder = new TextEncoder();
+				const decoder = new TextDecoder();
+				const chunks = [];
+				let offset = 12;
+				let patchedJsonChunk = null;
+
+				while (offset < view.byteLength) {
+					const length = view.getUint32(offset, true);
+					const type = view.getUint32(offset + 4, true);
+					const start = offset + 8;
+					const end = start + length;
+					const data = buffer.slice(start, end);
+					chunks.push({ type, data });
+
+					if (type === jsonType) {
+						const json = JSON.parse(decoder.decode(data).trim());
+						const legacyExtension = "KHR_materials_pbrSpecularGlossiness";
+
+						json.extensionsRequired = json.extensionsRequired?.filter(name => name !== legacyExtension);
+						json.extensionsUsed = json.extensionsUsed?.filter(name => name !== legacyExtension);
+
+						if (!json.extensionsRequired?.length) delete json.extensionsRequired;
+						if (!json.extensionsUsed?.length) delete json.extensionsUsed;
+
+						json.materials?.forEach(material => {
+							const specGloss = material.extensions?.[legacyExtension];
+
+							if (!specGloss) return;
+
+							material.pbrMetallicRoughness = {
+								baseColorFactor: specGloss.diffuseFactor ?? [1, 1, 1, 1],
+								baseColorTexture: specGloss.diffuseTexture,
+								metallicFactor: 0,
+								roughnessFactor: 1 - (specGloss.glossinessFactor ?? 0)
+							};
+
+							delete material.extensions[legacyExtension];
+							if (!Object.keys(material.extensions).length) delete material.extensions;
+						});
+
+						const encoded = encoder.encode(JSON.stringify(json));
+						const paddedLength = Math.ceil(encoded.byteLength / 4) * 4;
+						const padded = new Uint8Array(paddedLength);
+						padded.fill(0x20);
+						padded.set(encoded);
+						patchedJsonChunk = { type: jsonType, data: padded.buffer };
+					}
+
+					offset = end;
+				}
+
+				if (!patchedJsonChunk) return buffer;
+
+				const outputChunks = chunks.map(chunk => (chunk.type === jsonType ? patchedJsonChunk : chunk));
+				const totalLength = 12 + outputChunks.reduce((sum, chunk) => sum + 8 + chunk.data.byteLength, 0);
+				const output = new ArrayBuffer(totalLength);
+				const outputView = new DataView(output);
+				const outputBytes = new Uint8Array(output);
+				let writeOffset = 12;
+
+				outputView.setUint32(0, view.getUint32(0, true), true);
+				outputView.setUint32(4, view.getUint32(4, true), true);
+				outputView.setUint32(8, totalLength, true);
+
+				outputChunks.forEach(chunk => {
+					outputView.setUint32(writeOffset, chunk.data.byteLength, true);
+					outputView.setUint32(writeOffset + 4, chunk.type, true);
+					outputBytes.set(new Uint8Array(chunk.data), writeOffset + 8);
+					writeOffset += 8 + chunk.data.byteLength;
+				});
+
+				return output;
+			};
+
+			const roseState = {
+				x: window.innerWidth < 760 ? 0.62 : 1.35,
+				y: window.innerWidth < 760 ? 0.78 : -0.04,
+				z: 0,
+				scale: window.innerWidth < 760 ? 0.3 : 0.9,
+				rx: -0.18,
+				ry: -0.48,
+				rz: -0.05,
+				opacity: 1
+			};
+
+			const setRendererSize = () => {
+				const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.8);
+				renderer.setPixelRatio(pixelRatio);
+				renderer.setSize(window.innerWidth, window.innerHeight, false);
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+			};
+
+			const loader = new GLTFLoader();
+			const mountRoseModel = gltf => {
+				roseModel = gltf.scene;
+				const box = new THREE.Box3().setFromObject(roseModel);
+				const center = box.getCenter(new THREE.Vector3());
+				const size = box.getSize(new THREE.Vector3());
+				const maxAxis = Math.max(size.x, size.y, size.z) || 1;
+
+				roseModel.position.sub(center);
+				roseModel.scale.setScalar(2.55 / maxAxis);
+				roseModel.traverse(child => {
+					if (child instanceof THREE.Mesh) {
+						child.frustumCulled = false;
+					}
+				});
+
+				roseGroup.add(roseModel);
+				fallback?.classList.add("is-hidden");
+			};
+
+			const loadRose = async () => {
+				try {
+					const response = await fetch("/red_rose.glb");
+
+					if (!response.ok) {
+						throw new Error(`Rose model request failed: ${response.status}`);
+					}
+
+					const buffer = patchLegacySpecGlossGlb(await response.arrayBuffer());
+					loader.parse(buffer, "/", mountRoseModel, () => {
+						stage?.classList.add("is-fallback");
+					});
+				} catch {
+					stage?.classList.add("is-fallback");
+				}
+			};
+
+			loadRose();
+
+			const renderFallbackState = () => {
+				if (!(fallback instanceof HTMLElement)) return;
+				fallback.style.setProperty("--rose-fallback-x", `${roseState.x * 18}vw`);
+				fallback.style.setProperty("--rose-fallback-y", `${roseState.y * -22}vh`);
+				fallback.style.setProperty("--rose-fallback-scale", `${roseState.scale}`);
+				fallback.style.opacity = `${roseState.opacity * 0.72}`;
+			};
+
+			const applyRoseState = () => {
+				const elapsed = clock.getElapsedTime();
+				const floatY = isReduced ? 0 : Math.sin(elapsed * 0.7) * 0.045;
+				const floatX = isReduced ? 0 : Math.cos(elapsed * 0.48) * 0.018;
+				const autoTurn = isReduced ? 0 : elapsed * 0.09;
+
+				roseGroup.position.set(roseState.x + floatX, roseState.y + floatY, roseState.z);
+				roseGroup.rotation.set(roseState.rx, roseState.ry + autoTurn, roseState.rz);
+				roseGroup.scale.setScalar(roseState.scale);
+				if (stage instanceof HTMLElement) {
+					stage.style.opacity = `${roseState.opacity}`;
+				}
+				renderFallbackState();
+			};
+
+			if (!isReduced) {
+				const mobile = window.matchMedia("(max-width: 759px)").matches;
+				const timeline = gsap.timeline({
+					scrollTrigger: {
+						trigger: document.documentElement,
+						start: "top top",
+						end: "bottom bottom",
+						scrub: 1.15
+					}
+				});
+
+				timeline
+					.to(roseState, {
+						x: mobile ? 0.56 : 1.58,
+						y: mobile ? -0.54 : -0.38,
+						scale: mobile ? 0.28 : 0.48,
+						ry: 0.45,
+						opacity: 0.62,
+						duration: 1.05,
+						ease: "none"
+					})
+					.to(roseState, {
+						x: mobile ? 0.12 : -0.04,
+						y: mobile ? -0.08 : 0,
+						scale: mobile ? 1.05 : 1.58,
+						ry: 2.35,
+						rz: 0.09,
+						opacity: 1,
+						duration: 1.25,
+						ease: "none"
+					})
+					.to(roseState, {
+						x: mobile ? -0.72 : -1.22,
+						y: mobile ? -0.12 : -0.08,
+						scale: mobile ? 0.44 : 0.66,
+						ry: 3.72,
+						opacity: 0.76,
+						duration: 1,
+						ease: "none"
+					})
+					.to(roseState, {
+						x: mobile ? 0.3 : 0.72,
+						y: mobile ? -0.52 : -0.5,
+						scale: mobile ? 0.26 : 0.38,
+						ry: 4.8,
+						opacity: 0.14,
+						duration: 0.82,
+						ease: "none"
+					});
+
+				gsap.utils.toArray(".reveal").forEach(element => {
+					gsap.fromTo(
+						element,
+						{ autoAlpha: 0, y: 42 },
+						{
+							autoAlpha: 1,
+							y: 0,
+							duration: 1.25,
+							ease: "power3.out",
+							scrollTrigger: {
+								trigger: element,
+								start: "top 86%"
+							}
+						}
+					);
+				});
+
+				gsap.utils.toArray(".stagger-reveal").forEach(group => {
+					const children = group.querySelectorAll(":scope > *");
+					gsap.fromTo(
+						children,
+						{ autoAlpha: 0, y: 36 },
+						{
+							autoAlpha: 1,
+							y: 0,
+							duration: 1.1,
+							ease: "power3.out",
+							stagger: 0.12,
+							scrollTrigger: {
+								trigger: group,
+								start: "top 82%"
+							}
+						}
+					);
+				});
+
+				gsap.utils.toArray(".parallax-panel").forEach(panel => {
+					gsap.fromTo(
+						panel,
+						{ yPercent: -8 },
+						{
+							yPercent: 8,
+							ease: "none",
+							scrollTrigger: {
+								trigger: panel,
+								start: "top bottom",
+								end: "bottom top",
+								scrub: true
+							}
+						}
+					);
+				});
+			}
+
+			const animate = () => {
+				applyRoseState();
+				renderer.render(scene, camera);
+			};
+
+			setRendererSize();
+			renderer.setAnimationLoop(animate);
+			window.addEventListener("resize", setRendererSize, { passive: true });
+		}
+	}
+</script>
