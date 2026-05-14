@@ -16,6 +16,7 @@
 	const isReduced = reducedMotion.matches;
 	const header = document.querySelector("[data-site-header]");
 	let loadingFinished = false;
+	let lenis;
 
 	const finishLoading = () => {
 		if (loadingFinished) return;
@@ -39,7 +40,7 @@
 	window.addEventListener("scroll", updateHeader, { passive: true });
 
 	if (!isReduced) {
-		const lenis = new Lenis({
+		lenis = new Lenis({
 			duration: 1.28,
 			easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
 			smoothWheel: true,
@@ -51,6 +52,31 @@
 		gsap.ticker.add(time => lenis.raf(time * 1000));
 		gsap.ticker.lagSmoothing(0);
 	}
+
+	document.addEventListener("click", event => {
+		const link = event.target instanceof Element ? event.target.closest('a[href^="#"]') : null;
+		const hash = link?.getAttribute("href");
+
+		if (!hash || hash === "#") return;
+
+		const target = document.querySelector(hash);
+		if (!target) return;
+
+		event.preventDefault();
+		document.body.classList.remove("nav-open");
+		document.querySelector("[data-nav-toggle]")?.setAttribute("aria-expanded", "false");
+		history.pushState(null, "", hash);
+
+		if (!isReduced && lenis) {
+			lenis.scrollTo(target, {
+				duration: 1.18,
+				easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t))
+			});
+			return;
+		}
+
+		target.scrollIntoView({ behavior: isReduced ? "auto" : "smooth", block: "start" });
+	});
 
 	const canvas = document.querySelector("[data-rose-canvas]");
 	const fallback = document.querySelector("[data-rose-fallback]");
@@ -170,17 +196,18 @@
 				return output;
 			};
 
-			const mobileCover = window.matchMedia("(max-width: 720px)").matches;
-			const roseState = {
-				x: mobileCover ? 0.08 : 1.35,
-				y: mobileCover ? -1.02 : -0.04,
+			const isMobileCover = () => window.matchMedia("(max-width: 720px)").matches;
+			const getInitialRoseState = () => ({
+				x: isMobileCover() ? 0.08 : 1.35,
+				y: isMobileCover() ? -1.02 : -0.04,
 				z: 0,
-				scale: mobileCover ? 0.76 : 0.9,
+				scale: isMobileCover() ? 0.76 : 0.9,
 				rx: -0.18,
 				ry: -0.48,
 				rz: -0.05,
 				opacity: 1
-			};
+			});
+			const roseState = getInitialRoseState();
 
 			const setRendererSize = () => {
 				const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.8);
@@ -258,57 +285,70 @@
 				renderFallbackState();
 			};
 
-			if (!isReduced) {
-				const mobile = window.matchMedia("(max-width: 720px)").matches;
-				const timeline = gsap.timeline({
-					scrollTrigger: {
-						trigger: document.documentElement,
-						start: "top top",
-						end: "bottom bottom",
-						scrub: 1.15
-					}
-				});
+			let rebuildRoseTimeline = () => {};
 
-				timeline
-					.to(roseState, {
-						x: mobile ? 0.52 : 1.12,
-						y: mobile ? -0.42 : -0.88,
-						scale: mobile ? 0.78 : 1.82,
-						rx: 0.46,
-						ry: 1.28,
-						rz: -0.12,
-						opacity: 1,
-						duration: 1.05,
-						ease: "none"
-					})
-					.to(roseState, {
-						x: mobile ? 0.12 : -0.04,
-						y: mobile ? -0.08 : 0,
-						scale: mobile ? 1.05 : 1.58,
-						ry: 2.35,
-						rz: 0.09,
-						opacity: 1,
-						duration: 1.25,
-						ease: "none"
-					})
-					.to(roseState, {
-						x: mobile ? -0.72 : -1.22,
-						y: mobile ? -0.12 : -0.08,
-						scale: mobile ? 0.44 : 0.66,
-						ry: 3.72,
-						opacity: 0.76,
-						duration: 1,
-						ease: "none"
-					})
-					.to(roseState, {
-						x: mobile ? 0.3 : 0.72,
-						y: mobile ? -0.52 : -0.5,
-						scale: mobile ? 0.26 : 0.38,
-						ry: 4.8,
-						opacity: 0.14,
-						duration: 0.82,
-						ease: "none"
+			if (!isReduced) {
+				let roseTimeline;
+				const buildRoseTimeline = () => {
+					roseTimeline?.scrollTrigger?.kill();
+					roseTimeline?.kill();
+					Object.assign(roseState, getInitialRoseState());
+
+					const mobile = isMobileCover();
+					roseTimeline = gsap.timeline({
+						scrollTrigger: {
+							trigger: document.documentElement,
+							start: "top top",
+							end: "bottom bottom",
+							scrub: 1.15,
+							invalidateOnRefresh: true
+						}
 					});
+
+					roseTimeline
+						.to(roseState, {
+							x: mobile ? 0.52 : 1.12,
+							y: mobile ? -0.42 : -0.88,
+							scale: mobile ? 0.78 : 1.82,
+							rx: 0.46,
+							ry: 1.28,
+							rz: -0.12,
+							opacity: 1,
+							duration: 1.05,
+							ease: "none"
+						})
+						.to(roseState, {
+							x: mobile ? 0.12 : -0.04,
+							y: mobile ? -0.08 : 0,
+							scale: mobile ? 1.05 : 1.58,
+							ry: 2.35,
+							rz: 0.09,
+							opacity: 1,
+							duration: 1.25,
+							ease: "none"
+						})
+						.to(roseState, {
+							x: mobile ? -0.72 : -1.22,
+							y: mobile ? -0.12 : -0.08,
+							scale: mobile ? 0.44 : 0.66,
+							ry: 3.72,
+							opacity: 0.76,
+							duration: 1,
+							ease: "none"
+						})
+						.to(roseState, {
+							x: mobile ? 0.3 : 0.72,
+							y: mobile ? -0.52 : -0.5,
+							scale: mobile ? 0.26 : 0.38,
+							ry: 4.8,
+							opacity: 0.14,
+							duration: 0.82,
+							ease: "none"
+						});
+				};
+
+				rebuildRoseTimeline = buildRoseTimeline;
+				buildRoseTimeline();
 
 				gsap.utils.toArray(".reveal").forEach(element => {
 					gsap.fromTo(
@@ -393,29 +433,27 @@
 					);
 				});
 
-				gsap.utils
-					.toArray(".section-deck, .artist-role, .artist-experience, .service-card h3, .service-card p, .process-step h3, .process-step p, .contact-card p")
-					.forEach(element => {
-						gsap.fromTo(
-							element,
-							{
-								autoAlpha: 0,
-								y: 28,
-								clipPath: "inset(0% 0% 26% 0%)"
-							},
-							{
-								autoAlpha: 1,
-								y: 0,
-								clipPath: "inset(0% 0% 0% 0%)",
-								duration: 1,
-								ease: "power3.out",
-								scrollTrigger: {
-									trigger: element,
-									start: "top 88%"
-								}
+				gsap.utils.toArray(".section-deck, .artist-role, .artist-experience, .service-card h3, .service-card p, .process-step h3, .process-step p, .contact-card p").forEach(element => {
+					gsap.fromTo(
+						element,
+						{
+							autoAlpha: 0,
+							y: 28,
+							clipPath: "inset(0% 0% 26% 0%)"
+						},
+						{
+							autoAlpha: 1,
+							y: 0,
+							clipPath: "inset(0% 0% 0% 0%)",
+							duration: 1,
+							ease: "power3.out",
+							scrollTrigger: {
+								trigger: element,
+								start: "top 88%"
 							}
-						);
-					});
+						}
+					);
+				});
 
 				gsap.utils.toArray(".eyebrow").forEach(element => {
 					gsap.fromTo(
@@ -503,7 +541,19 @@
 
 			setRendererSize();
 			renderer.setAnimationLoop(animate);
-			window.addEventListener("resize", setRendererSize, { passive: true });
+			let resizeTimer;
+			window.addEventListener(
+				"resize",
+				() => {
+					setRendererSize();
+					window.clearTimeout(resizeTimer);
+					resizeTimer = window.setTimeout(() => {
+						rebuildRoseTimeline();
+						ScrollTrigger.refresh();
+					}, 180);
+				},
+				{ passive: true }
+			);
 		}
 	}
 </script>

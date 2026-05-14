@@ -14,8 +14,8 @@
 	--paper: #fbf7ee;
 	--line: rgba(36, 33, 31, 0.16);
 	--shadow: 0 28px 80px rgba(36, 33, 31, 0.16);
-	--section-pad: clamp(5.5rem, 10vw, 11rem);
-	--gutter: clamp(1.2rem, 3.4vw, 4.8rem);
+	--section-pad: clamp(4.6rem, 7vw, 8rem);
+	--gutter: clamp(1.2rem, 3vw, 3.8rem);
 }
 
 * {
@@ -104,7 +104,7 @@ main {
 	font-family: var(--font-display);
 	font-size: clamp(3rem, 7vw, 7rem);
 	font-weight: 500;
-	line-height: 0.9;
+	line-height: 1;
 }
 
 .section-deck {

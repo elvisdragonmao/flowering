@@ -13,21 +13,8 @@ import "../styles/global.css";
 
 const title = "朝花曦時藝術工作室｜客製花藝設計、婚禮花藝與活動佈置";
 const siteName = "朝花曦時藝術工作室";
-const description =
-	"朝花曦時藝術工作室提供客製花束、送禮花藝、婚禮花藝、活動佈置、生日花束、花盒與空間花藝設計，以季節花材與自然線條承載每一份心意。";
-const keywords = [
-	"朝花曦時藝術工作室",
-	"客製花藝",
-	"客製花束",
-	"送禮花束",
-	"婚禮花藝",
-	"活動佈置",
-	"生日花束",
-	"花盒",
-	"空間花藝",
-	"花藝設計工作室",
-	"田曦之"
-].join(", ");
+const description = "朝花曦時藝術工作室提供客製花束、送禮花藝、婚禮花藝、活動佈置、生日花束、花盒與空間花藝設計，以季節花材與自然線條承載每一份心意。";
+const keywords = ["朝花曦時藝術工作室", "客製花藝", "客製花束", "送禮花束", "婚禮花藝", "活動佈置", "生日花束", "花盒", "空間花藝", "花藝設計工作室", "田曦之"].join(", ");
 const siteOrigin = Astro.site?.origin ?? "https://flower.elvismao.com";
 const basePath = import.meta.env.BASE_URL === "/" ? "" : import.meta.env.BASE_URL.replace(/\/$/, "");
 const canonicalUrl = new URL(Astro.url.pathname, siteOrigin).toString();
