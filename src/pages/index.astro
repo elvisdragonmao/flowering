@@ -10,6 +10,119 @@ import ProcessSection from "../components/ProcessSection.astro";
 import RoseScene from "../components/RoseScene.astro";
 import ServicesSection from "../components/ServicesSection.astro";
 import "../styles/global.css";
+
+const title = "朝花曦時藝術工作室｜客製花藝設計、婚禮花藝與活動佈置";
+const siteName = "朝花曦時藝術工作室";
+const description =
+	"朝花曦時藝術工作室提供客製花束、送禮花藝、婚禮花藝、活動佈置、生日花束、花盒與空間花藝設計，以季節花材與自然線條承載每一份心意。";
+const keywords = [
+	"朝花曦時藝術工作室",
+	"客製花藝",
+	"客製花束",
+	"送禮花束",
+	"婚禮花藝",
+	"活動佈置",
+	"生日花束",
+	"花盒",
+	"空間花藝",
+	"花藝設計工作室",
+	"田曦之"
+].join(", ");
+const siteOrigin = Astro.site?.origin ?? "https://flower.elvismao.com";
+const basePath = import.meta.env.BASE_URL === "/" ? "" : import.meta.env.BASE_URL.replace(/\/$/, "");
+const canonicalUrl = new URL(Astro.url.pathname, siteOrigin).toString();
+const ogImageUrl = new URL(`${basePath}/img/og.png`, siteOrigin).toString();
+const instagramUrl = "https://www.instagram.com/your_ig_account";
+const schema = {
+	"@context": "https://schema.org",
+	"@graph": [
+		{
+			"@type": "WebSite",
+			"@id": `${canonicalUrl}#website`,
+			name: siteName,
+			url: canonicalUrl,
+			inLanguage: "zh-Hant-TW",
+			publisher: { "@id": `${canonicalUrl}#business` }
+		},
+		{
+			"@type": "WebPage",
+			"@id": `${canonicalUrl}#webpage`,
+			url: canonicalUrl,
+			name: title,
+			description,
+			isPartOf: { "@id": `${canonicalUrl}#website` },
+			about: { "@id": `${canonicalUrl}#business` },
+			primaryImageOfPage: {
+				"@type": "ImageObject",
+				url: ogImageUrl,
+				width: 1200,
+				height: 600
+			},
+			inLanguage: "zh-Hant-TW"
+		},
+		{
+			"@type": ["Florist", "LocalBusiness"],
+			"@id": `${canonicalUrl}#business`,
+			name: siteName,
+			alternateName: "Floral Art Studio",
+			url: canonicalUrl,
+			image: ogImageUrl,
+			logo: ogImageUrl,
+			description,
+			priceRange: "$$",
+			sameAs: [instagramUrl],
+			founder: {
+				"@type": "Person",
+				name: "田曦之",
+				jobTitle: "花藝師 / Artist",
+				description: "AFA 美國花藝設計學院 現代花藝設計教授"
+			},
+			areaServed: {
+				"@type": "Country",
+				name: "Taiwan"
+			},
+			knowsAbout: ["客製花束", "送禮花藝", "婚禮花藝", "活動佈置", "生日花束", "花盒", "空間花藝"],
+			makesOffer: {
+				"@type": "OfferCatalog",
+				name: "花藝設計服務",
+				itemListElement: [
+					{
+						"@type": "Offer",
+						itemOffered: {
+							"@type": "Service",
+							name: "客製花束",
+							description: "依照送禮對象、場合、預算與色系，設計專屬於當下心意的花束。"
+						}
+					},
+					{
+						"@type": "Offer",
+						itemOffered: {
+							"@type": "Service",
+							name: "送禮花藝",
+							description: "花盒、花籃、節慶花禮與開幕祝賀，讓祝福以更細膩的方式抵達。"
+						}
+					},
+					{
+						"@type": "Offer",
+						itemOffered: {
+							"@type": "Service",
+							name: "婚禮花藝",
+							description: "從新娘捧花、胸花到婚禮場地佈置，以花藝勾勒儀式感與記憶。"
+						}
+					},
+					{
+						"@type": "Offer",
+						itemOffered: {
+							"@type": "Service",
+							name: "活動佈置",
+							description: "為品牌活動、派對、展覽、攝影場景與空間陳列打造花藝視覺。"
+						}
+					}
+				]
+			}
+		}
+	]
+};
 ---
 
 <!doctype html>
@@ -17,11 +130,37 @@ import "../styles/global.css";
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<meta name="description" content="朝花曦時藝術工作室，提供客製花束、送禮花藝、婚禮花藝、活動佈置與空間花藝設計。" />
-		<title>朝花曦時藝術工作室</title>
+		<title>{title}</title>
+		<meta name="description" content={description} />
+		<meta name="keywords" content={keywords} />
+		<meta name="author" content={siteName} />
+		<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+		<meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+		<meta name="format-detection" content="telephone=no" />
+		<meta name="theme-color" content="#f8f2e7" />
+		<link rel="canonical" href={canonicalUrl} />
+		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+		<meta property="og:locale" content="zh_TW" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content={siteName} />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:url" content={canonicalUrl} />
+		<meta property="og:image" content={ogImageUrl} />
+		<meta property="og:image:secure_url" content={ogImageUrl} />
+		<meta property="og:image:type" content="image/png" />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="600" />
+		<meta property="og:image:alt" content="朝花曦時藝術工作室花藝網站封面" />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={ogImageUrl} />
+		<meta name="twitter:image:alt" content="朝花曦時藝術工作室花藝網站封面" />
 		<link rel="preconnect" href="https://font.emtech.cc" />
 		<link rel="stylesheet" href="https://font.emtech.cc/css/ChironSungHK" />
 		<link rel="stylesheet" href="https://font.emtech.cc/css/ZhuqueFangsong" />
+		<script type="application/ld+json" set:html={JSON.stringify(schema)} />
 	</head>
 	<body data-loading>
 		<LoadingScreen />
