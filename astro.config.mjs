@@ -1,14 +1,9 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 
-const [githubOwner, githubRepo] = process.env.GITHUB_REPOSITORY?.split("/") ?? [];
-const isGitHubPagesRoot = githubOwner && githubRepo === `${githubOwner}.github.io`;
-const siteUrl = process.env.SITE_URL ?? (githubOwner ? `https://${githubOwner}.github.io` : "https://flower.elvismao.com");
-
 // https://astro.build/config
 export default defineConfig({
-	site: siteUrl,
-	base: githubOwner && githubRepo && !isGitHubPagesRoot ? `/${githubRepo}` : undefined,
+	base: "",
 	vite: {
 		build: {
 			chunkSizeWarningLimit: 700,
